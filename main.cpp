@@ -1,4 +1,5 @@
 #include <iostream>
+#include <unordered_map>
 #include <fstream>
 #include <string>
 #include <vector>
@@ -137,5 +138,32 @@ int main() {
         }
     }
 
+
+    //testing con unordered map
+
+    //formato id : contador
+    //implementacion con user_id
+    std::cout << "\nInsertando tweets en unordered_map..." << std::endl;
+    std::unordered_map<std::string, int> tweets_unordered_user_id;
+
+    for(const auto& tweet : tweets){
+        if (tweets_unordered_user_id.count(tweet.user_id)) {
+            tweets_unordered_user_id[tweet.user_id] += 1;
+        }else{
+            tweets_unordered_user_id[tweet.user_id] = 1;
+        }
+    }
+
+    //implementacion cun user_screen_name
+    std::cout << "\nInsertando tweets en unordered_map..." << std::endl;
+    std::unordered_map<std::string, int> tweets_unordered_user_screen_name;
+
+    for(const auto& tweet : tweets){
+        if (tweets_unordered_user_screen_name.count(tweet.user_screen_name)) {
+            tweets_unordered_user_screen_name[tweet.user_screen_name] += 1;
+        }else{
+            tweets_unordered_user_screen_name[tweet.user_screen_name] = 1;
+        }
+    }
     return 0;
 }

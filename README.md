@@ -2,9 +2,8 @@
 Tarea 3 estructura de datos. Hashing
 
 Integrantes:
-1. Leonardo Guerrero
-2. Benjamín Poblete
-3. Khristian Villalobos
+1. Benjamín Poblete
+2. Khristian Villalobos
 
 # Para compilar y ejecutar:
 # Linux
