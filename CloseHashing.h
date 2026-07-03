@@ -25,7 +25,7 @@ private:
     size_t numElements;
     ProbingType probingType;
 
-    // Función hash primaria (djb2)
+    // Funcion hash primaria (djb2)
     size_t h1(const std::string& key, size_t size) const {
         size_t hash = 5381;
         for (char c : key) {
@@ -34,7 +34,7 @@ private:
         return hash % size;
     }
 
-    // Algoritmo SDBM para generar un valor numérico a partir del string
+    // Algoritmo SDBM para generar un valor numerico a partir del string
     size_t stringToNumericHash(const std::string& key) const {
         size_t hash = 0;
         for (char c : key) {
@@ -43,10 +43,10 @@ private:
         return hash;
     }
 
-    // Función hash secundaria (Método de la multiplicación de Knuth)
+    // Funcion hash secundaria (Metodo de la multiplicacion de Knuth)
     size_t h2(const std::string& key, size_t size) const {
         size_t k = stringToNumericHash(key);
-        double A = (std::sqrt(5.0) - 1.0) / 2.0; // Fracción áurea
+        double A = (std::sqrt(5.0) - 1.0) / 2.0; // Fraccion aurea
         double a = static_cast<double>(k) * A;
         a -= std::floor(a);
         size_t val = static_cast<size_t>(size * a);
@@ -61,7 +61,7 @@ private:
         return (h1(key, size) + i) % size;
     }
 
-    // Sondeo cuadrático: h(k, i) = (h1(k) + i + 2*i^2) % n
+    // Sondeo cuadrativo: h(k, i) = (h1(k) + i + 2*i^2) % n
     size_t quadratic_probing(const std::string& key, size_t size, size_t i) const {
         return (h1(key, size) + i + 2 * i * i) % size;
     }
@@ -71,7 +71,7 @@ private:
         return (h1(key, size) + i * h2(key, size)) % size;
     }
 
-    // Función general de sondeo (probar)
+    // Funcion general de sondeo (probar)
     size_t probe(const std::string& key, size_t i) const {
         switch (probingType) {
             case QUADRATIC:
@@ -92,24 +92,49 @@ public:
 
     // Insertar un elemento
     void insert(const std::string& key, const ValueType& value) {
+        int firstDeletedIndex = -1;
         for (size_t i = 0; i < tableSize; i++) {
             size_t index = probe(key, i);
 
-            // Si está vacío o marcado como borrado, insertamos aquí
-            if (table[index].state == EMPTY || table[index].state == DELETED) {
-                table[index].key = key;
-                table[index].value = value;
-                table[index].state = OCCUPIED;
+            if (table[index].state == EMPTY) {
+                // Si encontramos una celda VACIA, el elemento no existe.
+                // Insertamos en el primer slot DELETED encontrado para reusar espacio, o en el actual EMPTY.
+                if (firstDeletedIndex != -1) {
+                    table[firstDeletedIndex].key = key;
+                    table[firstDeletedIndex].value = value;
+                    table[firstDeletedIndex].state = OCCUPIED;
+                } else {
+                    table[index].key = key;
+                    table[index].value = value;
+                    table[index].state = OCCUPIED;
+                }
                 numElements++;
                 return;
             }
 
-            // Si la clave ya existe, actualizamos el valor y retornamos
+            if (table[index].state == DELETED) {
+                // Guardamos el primer slot DELETED para reusarlo si la clave no existe después
+                if (firstDeletedIndex == -1) {
+                    firstDeletedIndex = static_cast<int>(index);
+                }
+            }
+
+            // Si la clave ya existe, actualizamos su valor
             if (table[index].state == OCCUPIED && table[index].key == key) {
                 table[index].value = value;
                 return;
             }
         }
+
+        // Si recorrimos toda la tabla sin encontrar EMPTY, pero hay un slot DELETED, insertamos ahí
+        if (firstDeletedIndex != -1) {
+            table[firstDeletedIndex].key = key;
+            table[firstDeletedIndex].value = value;
+            table[firstDeletedIndex].state = OCCUPIED;
+            numElements++;
+            return;
+        }
+
         throw std::runtime_error("Tabla hash cerrada llena, no se pudo insertar");
     }
 
@@ -126,6 +151,20 @@ public:
             // Si la casilla está ocupada y la clave coincide, la encontramos
             if (table[index].state == OCCUPIED && table[index].key == key) {
                 outValue = table[index].value;
+                return true;
+            }
+        }
+        return false;
+    }
+
+    // Verificar si existe un elemento por su clave
+    bool contains(const std::string& key) const {
+        for (size_t i = 0; i < tableSize; i++) {
+            size_t index = probe(key, i);
+            if (table[index].state == EMPTY) {
+                break;
+            }
+            if (table[index].state == OCCUPIED && table[index].key == key) {
                 return true;
             }
         }

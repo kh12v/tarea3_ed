@@ -166,28 +166,16 @@ int main() {
             tweets_unordered_user_screen_name[tweet.user_screen_name] = 1;
         }
     }
-    // Testing CloseHashing (Linear Probing)
-    std::cout << "\nInserting tweets into CloseHashing table (Linear Probing)..." << std::endl;
-    CloseHashing<Tweet> closeHashTable(200003, LINEAR);
+    // Testing CloseHashing
+    std::cout << "\nContando tweets por usuario en CloseHashing..." << std::endl;
+    CloseHashing<int> closeHashTable(200003, LINEAR);
     
-    try {
-        for (const auto& tweet : tweets) {
-            closeHashTable.insert(tweet.id, tweet);
-        }
-        std::cout << "Successfully inserted elements. Close hash table size: " << closeHashTable.size() << std::endl;
-    } catch (const std::exception& e) {
-        std::cerr << "Error during insertion: " << e.what() << std::endl;
-    }
-    
-    if (!tweets.empty()) {
-        std::string testId = tweets[0].id;
-        std::cout << "\nSearching for tweet with ID in CloseHashing: " << testId << std::endl;
-        
-        Tweet foundTweet;
-        if (closeHashTable.search(testId, foundTweet)) {
-            std::cout << "Tweet found in CloseHashing! Text: " << foundTweet.full_text << std::endl;
+    for (const auto& tweet : tweets) {
+        int count = 0;
+        if (closeHashTable.search(tweet.user_id, count)) {
+            closeHashTable.insert(tweet.user_id, count + 1); // Actualiza el valor automáticamente
         } else {
-            std::cout << "Tweet not found in CloseHashing" << std::endl;
+            closeHashTable.insert(tweet.user_id, 1); // Primer tweet
         }
     }
 

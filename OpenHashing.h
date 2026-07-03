@@ -66,6 +66,17 @@ public:
         return false;
     }
 
+    // Verificar si existe un elemento por su clave
+    bool contains(const std::string& key) const {
+        size_t index = hashFunction(key, tableSize);
+        for (const auto& node : table[index]) {
+            if (node.key == key) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     // Eliminar un elemento
     bool remove(const std::string& key) {
         size_t index = hashFunction(key, tableSize);
