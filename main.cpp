@@ -112,6 +112,95 @@ std::vector<Tweet> read_tweets(const std::string& filename) {
     return tweets;
 }
 
+//clasificacion 1 user_id, clasificacion 2 user_screen_name
+void contadorUnorderedMap (int clasificacion, std::unordered_map<std::string, int>& tweets_unordered_map, std::vector<Tweet>& tweets){
+    
+    if (clasificacion == 1){
+        std::cout << "\nInsertando tweets mediante user_id en unordered_map..." << std::endl;
+
+        for(const auto& tweet : tweets){
+            tweets_unordered_map[tweet.user_id]++;
+        }
+
+    }else if (clasificacion == 2){
+        std::cout << "\nInsertando tweets mediante user_screen_name en unordered_map..." << std::endl;
+
+        for(const auto& tweet : tweets){
+            tweets_unordered_map[tweet.user_screen_name]++;
+        }
+    }else{
+        std::cout << "\nError: Clasificacion invalida" << std::endl;
+        return;
+    }
+    std::cout << "Insertados correctamente en unordered_map" << std::endl;
+}
+
+//clasificacion 1 user_id, clasificacion 2 user_screen_name
+void contadorCloseHashing (int clasificacion, CloseHashing<int>& closeHashTable, std::vector<Tweet>& tweets){
+    
+    if(clasificacion == 1){
+        std::cout << "\nInsertando tweets mediante user_id en CloseHashing..." << std::endl;
+        
+        for (const auto& tweet : tweets) {
+            int count = 0;
+            if (closeHashTable.search(tweet.user_id, count)) {
+                closeHashTable.insert(tweet.user_id, count + 1); // Actualiza el valor automáticamente
+            } else {
+                closeHashTable.insert(tweet.user_id, 1); // Primer tweet
+            }
+        }
+    }else if(clasificacion == 2){
+        std::cout << "\nInsertando tweets mediante user_screen_name en CloseHashing..." << std::endl;
+    
+        for (const auto& tweet : tweets) {
+            int count = 0;
+            if (closeHashTable.search(tweet.user_screen_name, count)) {
+                closeHashTable.insert(tweet.user_screen_name, count + 1); // Actualiza el valor automáticamente
+            } else {
+                closeHashTable.insert(tweet.user_screen_name, 1); // Primer tweet
+            }
+        }
+    }
+    else{
+        std::cout << "\nError: Clasificacion invalida" << std::endl;
+        return;
+    }
+    std::cout << "Insertados correctamente en CloseHashing" << std::endl;
+    
+}
+
+void contadorOpenHashing (int clasificacion, OpenHashing<int>& openHashTable, std::vector<Tweet>& tweets){
+    if(clasificacion == 1){
+        std::cout << "\nInsertando tweets mediante user_id en OpenHashing..." << std::endl;
+        
+        for (const auto& tweet : tweets) {
+            int count = 0;
+            if (openHashTable.search(tweet.user_id, count)) {
+                openHashTable.insert(tweet.user_id, count + 1); // Actualiza el valor automáticamente
+            } else {
+                openHashTable.insert(tweet.user_id, 1); // Primer tweet
+            }
+        }
+    }else if(clasificacion == 2){
+        std::cout << "\nInsertando tweets mediante user_screen_name en OpenHashing..." << std::endl;
+    
+        for (const auto& tweet : tweets) {
+            int count = 0;
+            if (openHashTable.search(tweet.user_screen_name, count)) {
+                openHashTable.insert(tweet.user_screen_name, count + 1); // Actualiza el valor automáticamente
+            } else {
+                openHashTable.insert(tweet.user_screen_name, 1); // Primer tweet
+            }
+        }
+    }
+    else{
+        std::cout << "\nError: Clasificacion invalida" << std::endl;
+        return;
+    }
+    std::cout << "Insertados correctamente en OpenHashing" << std::endl;
+}
+
+
 int main() {
     std::vector<Tweet> tweets = read_tweets("auspol2019.csv");
 
@@ -141,43 +230,32 @@ int main() {
 
 
     //testing con unordered map
-
-    //formato id : contador
     //implementacion con user_id
-    std::cout << "\nInsertando tweets en unordered_map..." << std::endl;
     std::unordered_map<std::string, int> tweets_unordered_user_id;
-
-    for(const auto& tweet : tweets){
-        if (tweets_unordered_user_id.count(tweet.user_id)) {
-            tweets_unordered_user_id[tweet.user_id] += 1;
-        }else{
-            tweets_unordered_user_id[tweet.user_id] = 1;
-        }
-    }
+    contadorUnorderedMap(1, tweets_unordered_user_id, tweets);
 
     //implementacion cun user_screen_name
-    std::cout << "\nInsertando tweets en unordered_map..." << std::endl;
     std::unordered_map<std::string, int> tweets_unordered_user_screen_name;
+    contadorUnorderedMap(2, tweets_unordered_user_screen_name, tweets);
 
-    for(const auto& tweet : tweets){
-        if (tweets_unordered_user_screen_name.count(tweet.user_screen_name)) {
-            tweets_unordered_user_screen_name[tweet.user_screen_name] += 1;
-        }else{
-            tweets_unordered_user_screen_name[tweet.user_screen_name] = 1;
-        }
-    }
-    // Testing CloseHashing
-    std::cout << "\nContando tweets por usuario en CloseHashing..." << std::endl;
+
+    // funcionamiento en CloseHashing
+    // user_id
     CloseHashing<int> closeHashTable(200003, LINEAR);
-    
-    for (const auto& tweet : tweets) {
-        int count = 0;
-        if (closeHashTable.search(tweet.user_id, count)) {
-            closeHashTable.insert(tweet.user_id, count + 1); // Actualiza el valor automáticamente
-        } else {
-            closeHashTable.insert(tweet.user_id, 1); // Primer tweet
-        }
-    }
+    contadorCloseHashing(1, closeHashTable, tweets);
+
+    // user_screen_name
+    CloseHashing<int> closeHashTable2(200003, LINEAR);
+    contadorCloseHashing(2, closeHashTable2, tweets);
+
+    // test openhshing
+    // user_id
+    OpenHashing<int> openHashTable(200003);
+    contadorOpenHashing(1, openHashTable, tweets);
+
+    // user_screen_name
+    OpenHashing<int> openHashTable2(200003);
+    contadorOpenHashing(2, openHashTable2, tweets);
 
     return 0;
 }
