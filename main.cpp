@@ -205,29 +205,6 @@ int main() {
     std::vector<Tweet> tweets = read_tweets("auspol2019.csv");
 
     std::cout << "Read " << tweets.size() << " tweets from auspol2019.csv." << std::endl;
-    
-    // Testing OpenHashing
-    std::cout << "\nInserting tweets into OpenHashing table..." << std::endl;
-    OpenHashing<Tweet> hashTable(200003);
-    
-    for (const auto& tweet : tweets) {
-        hashTable.insert(tweet.id, tweet);
-    }
-    
-    std::cout << "Successfully inserted elements. Hash table size: " << hashTable.size() << std::endl;
-    
-    if (!tweets.empty()) {
-        std::string testId = tweets[0].id;
-        std::cout << "\nSearching for tweet with ID: " << testId << std::endl;
-        
-        Tweet foundTweet;
-        if (hashTable.search(testId, foundTweet)) {
-            std::cout << "Tweet found Text: " << foundTweet.full_text << std::endl;
-        } else {
-            std::cout << "Tweet not found" << std::endl;
-        }
-    }
-
 
     //testing con unordered map
     //implementacion con user_id
